@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+  unitconverterdb:
+    image: postgres
+    container_name: unitconverterdb
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin1234
+      - POSTGRES_DB=ConversionDb
+    restart: always
+    ports:
+        - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  unitconverter.api:
+    container_name: unitconverter.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings:Ef_Postgres_Db=Host=postgres;Database=ConversionDb;Port=5432;Username=admin;Password=admin1234;"
+    depends_on:
+      - unitconverterdb
+    ports:
+      - "8002:80"
+    image: ${DOCKER_REGISTRY-}unitconverterapi
+    build:
+      context: .
+      dockerfile: UnitConverter/Dockerfile

@@ -1,0 +1,54 @@
+services:
+  unitconverter.api:
+    build:
+      context: C:\Users\krese\source\repos\UnitConverter
+      dockerfile: UnitConverter/Dockerfile
+      labels:
+        com.microsoft.created-by: visual-studio
+        com.microsoft.visual-studio.project-name: UnitConverter.Api
+      target: base
+    container_name: unitconverter.api
+    depends_on:
+      unitconverterdb:
+        condition: service_started
+    entrypoint: tail -f /dev/null
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS: "true"
+      ConnectionStrings:Ef_Postgres_Db: Host=postgres;Database=ConversionDb;Port=5432;Username=admin;Password=admin1234;
+      DOTNET_USE_POLLING_FILE_WATCHER: '1'
+      NUGET_FALLBACK_PACKAGES: ''
+    image: unitconverterapi:dev
+    labels:
+      com.microsoft.visualstudio.debuggee.arguments: ' --additionalProbingPath /root/.nuget/packages  "/app/bin/Debug/net6.0/UnitConverter.Api.dll"'
+      com.microsoft.visualstudio.debuggee.killprogram: /bin/sh -c "if PID=$$(pidof
+        dotnet); then kill $$PID; fi"
+      com.microsoft.visualstudio.debuggee.program: dotnet
+      com.microsoft.visualstudio.debuggee.workingdirectory: /app
+    ports:
+    - published: 8002
+      target: 80
+    tty: true
+    volumes:
+    - C:\Users\krese\source\repos\UnitConverter\UnitConverter:/app:rw
+    - C:\Users\krese\vsdbg\vs2017u5:/remote_debugger:rw
+    - C:\Users\krese\AppData\Roaming\ASP.NET\Https:/root/.aspnet/https:ro
+    - C:\Users\krese\AppData\Roaming\Microsoft\UserSecrets:/root/.microsoft/usersecrets:ro
+    - C:\Users\krese\.nuget\packages:/root/.nuget/packages:ro
+    - C:\Users\krese\source\repos\UnitConverter:/src:rw
+  unitconverterdb:
+    container_name: unitconverterdb
+    environment:
+      POSTGRES_DB: ConversionDb
+      POSTGRES_PASSWORD: admin1234
+      POSTGRES_USER: admin
+    image: postgres
+    ports:
+    - published: 5432
+      target: 5432
+    restart: always
+    volumes:
+    - postgres_data:/var/lib/postgresql/data/:rw
+version: '3.4'
+volumes:
+  postgres_data: {}

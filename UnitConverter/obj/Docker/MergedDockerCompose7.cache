@@ -1,0 +1,35 @@
+services:
+  unitconverter.api:
+    build:
+      context: C:\Users\krese\source\repos\UnitConverter
+      dockerfile: UnitConverter/Dockerfile
+    container_name: discount.api
+    depends_on:
+      unitconverterdb:
+        condition: service_started
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings:Ef_Postgres_Db: Host=postgres;Database=ConversionDb;Port=5432;Username=admin;Password=admin1234;
+    image: unitconverterapi
+    ports:
+    - published: 8002
+      target: 80
+    volumes:
+    - C:\Users\krese\AppData\Roaming\ASP.NET\Https:/root/.aspnet/https:ro
+    - C:\Users\krese\AppData\Roaming\Microsoft\UserSecrets:/root/.microsoft/usersecrets:ro
+  unitconverterdb:
+    container_name: unitconverterdb
+    environment:
+      POSTGRES_DB: DiscountDb
+      POSTGRES_PASSWORD: admin1234
+      POSTGRES_USER: admin
+    image: postgres
+    ports:
+    - published: 5432
+      target: 5432
+    restart: always
+    volumes:
+    - postgres_data:/var/lib/postgresql/data/:rw
+version: '3.4'
+volumes:
+  postgres_data: {}
